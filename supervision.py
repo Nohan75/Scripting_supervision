@@ -1,7 +1,68 @@
+import datetime
 import os
 import time
 
 import psutil
+
+
+# data = "testdata,data=cpu number=8"
+now = datetime.datetime.now()
+
+def send_cpu():
+    # CPU
+    print("   > CPU ")
+    cpu_time = 'cpu,data=cpu cpu_time=' + str(psutil.cpu_times()[0]) + ' time=' + str(datetime.datetime.timestamp(now))
+    percent = 'cpu,data=cpu percent=' + str(psutil.cpu_percent())
+    count = 'cpu,data=cpu count=' + str(psutil.cpu_count())
+    time_percent = 'cpu,data=cpu time_percent=' + str(psutil.cpu_times_percent(percpu=False).user)
+    frequency = 'cpu,data=cpu frequency=' + str(psutil.cpu_freq().current)
+    load_avg = 'cpu,data=cpu load_avg=' + str(psutil.getloadavg()[0])
+    return [cpu_time]
+
+
+def send_memory():
+    # Memory
+    print("   > Memory ")
+    memory = "memory,data=memory virtual=" + str(psutil.virtual_memory().total)
+    swap = "memory,data=memory swap=" + str(psutil.swap_memory().total)
+    process = "memory,data=memory process=" + str(psutil.Process(os.getpid()).memory_info().rss)
+    return [memory, swap, process]
+
+
+def send_disk():
+    # Disk
+    print("   > Disk ")
+    usage = "disk,data=disk usage=" + str(psutil.disk_usage('/').total)
+    return [usage]
+
+
+def send_network():
+    # Network
+    print("   > Network ")
+    counters = "network,data=network io counters=" + str(psutil.net_io_counters(pernic=True))
+    stats = "network,data=network net stats=" + str(psutil.net_if_stats())
+    address = "network,data=network net if address=" + str(psutil.net_if_addrs())
+    return [counters, stats, address]
+
+
+def send_sensors():
+    # Sensors
+    print("   > Sensors ")
+    battery = "sensors,data=sensors battery=" + str(psutil.sensors_battery().percent)
+    return [battery]
+
+
+def send_other():
+    # Other
+    print("   > Other")
+    boot = "other,data=boot boot_time=" + str(psutil.boot_time())
+    return [boot]
+
+
+def send_all():
+    # Send all data
+    print(" >>> Send all data: ")
+    return [send_cpu(), send_memory(), send_disk(), send_sensors(), send_other()]
 
 
 def log_cpu():
@@ -68,6 +129,3 @@ def log_processes():
     print("process: " + str(p))
     print("process name: " + str(p.name()))
     print("process exe: " + str(p.exe()))
-
-
-functions = [log_cpu, log_memory, log_disk, log_network, log_sensors, log_other, log_processes]
