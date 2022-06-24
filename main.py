@@ -15,10 +15,15 @@ bucket = "test"
 
 
 def send_logs(api):
-    # for function in supervision.send_all():
-    for data in supervision.send_cpu():
-        api.write(bucket, org, data)
-        print("Sent: " + data)
+    """
+    Send logs to InfluxDB
+    :param api: write api
+    :return: nothing
+    """
+    for function in supervision.send_all():
+        for data in function:
+            api.write(bucket, org, data)
+            # print("Sent: " + data)
 
 
 if __name__ == '__main__':
